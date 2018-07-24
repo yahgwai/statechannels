@@ -11,6 +11,7 @@ contract StateChannel {
 
     // Current status for channel
     Status public status;
+    // YAH: why initialise bestRound to 0, and not any other vars?
     uint256 public bestRound = 0;
     uint256 public t_start;
     uint256 public deadline;
@@ -50,6 +51,7 @@ contract StateChannel {
         // Only accept a single command during a dispute
         require( status == Status.ON );
         status = Status.DISPUTE;
+        // YAH: bug? should be setting deadline?
         t_start = block.timestamp + t_start;
 
     }
@@ -57,6 +59,7 @@ contract StateChannel {
     // Store a state hash that was authorised by all parties in the state channel
     // This cancels any disputes in progress if it is associated with the largest nonce seen so far.
     // ANYONE can relay a message! Important for PISA.
+    // YAH: prefer camel case
     function setstate(uint256[] sigs, uint256 _i, bytes32 _hstate) public {
         require(_i > bestRound);
         require( status == Status.DISPUTE);
@@ -87,6 +90,8 @@ contract StateChannel {
         require(status == Status.DISPUTE);
 
         // Return to normal operations and update bestRound
+        // YAH: return to normal operations? off? a dispute cannot be triggered in off, and there's no way of setting back to ON
+        // YAH: if that's the case, what's the point in setting bestRound = bestRound + 1?
         status = Status.OFF;
         bestRound = bestRound + 1;
 
@@ -98,6 +103,7 @@ contract StateChannel {
 
 
     // Fetch a dispute.
+    // YAH: whats the purpose of this when dispute is actually public?
     function getDispute() public view returns (uint256, uint256, uint256) {
         require(status == Status.OFF);
 
@@ -111,6 +117,7 @@ contract StateChannel {
     }
 
     // Fetch latest state hash, only fetchable once dispute process has concluded.
+    // YAH: whats the purpose of this when hstate is actually public?
     function getStateHash() public view returns (bytes32) {
         require(status == Status.OFF);
 
@@ -118,6 +125,7 @@ contract StateChannel {
     }
 
     // Latest round in contract
+    // YAH: whats the purpose of this when bestRound is actually public?
     function latestClaim() public view returns(uint) {
         return bestRound;
     }
